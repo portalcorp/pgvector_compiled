@@ -2,6 +2,9 @@
 
 Precompiled OS packages (zips) for pgvector on Linux, MacOS, and Windows.
 
+The [Releases](https://github.com/portalcorp/pgvector_compiled/releases) page contains the compiled versions of pgvector for PostgreSQL 16.
+The version number format is `v0.<POSTGRESQL_VERSION>.<INCREMENT>` where increments increases by one for commit to this repo.
+
 ## Usage
 
 1. Download the zip for your OS from the [Releases](https://github.com/portalcorp/pgvector_compiled/releases) page.
