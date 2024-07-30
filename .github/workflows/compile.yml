@@ -1,0 +1,94 @@
+name: Compile pgvector
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Set up PostgreSQL and pgvector (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-common
+          sudo DEBIAN_FRONTEND=noninteractive /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo DEBIAN_FRONTEND=noninteractive apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-16
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-16-pgvector
+
+      - name: Set up PostgreSQL (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install postgresql@16
+          echo "/usr/local/opt/postgresql@16/bin" >> $GITHUB_PATH
+
+      - name: Set up PostgreSQL (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install postgresql16 --params '/Password:postgres'
+          echo "C:\Program Files\PostgreSQL\16\bin" >> $GITHUB_PATH
+          echo "C:\Program Files\PostgreSQL\16" >> $GITHUB_PATH
+
+      - name: Clone pgvector (macOS and Windows)
+        if: runner.os != 'Linux'
+        uses: actions/checkout@v3
+        with:
+          repository: "pgvector/pgvector"
+          ref: "v0.7.3"
+
+      - name: Compile pgvector (macOS)
+        if: runner.os == 'macOS'
+        run: make
+
+      - name: Set up Visual Studio and compile pgvector (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          set "PGROOT=C:\Program Files\PostgreSQL\16"
+          cd %TEMP%
+          git clone --branch v0.7.3 https://github.com/pgvector/pgvector.git
+          cd pgvector
+          nmake /F Makefile.win
+          nmake /F Makefile.win install
+
+      - name: Create artifact (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p pgvector-${{ runner.os }}-pg16/lib
+          mkdir -p pgvector-${{ runner.os }}-pg16/share/extension
+          sudo cp /usr/lib/postgresql/16/lib/vector.so pgvector-${{ runner.os }}-pg16/lib/
+          sudo cp /usr/share/postgresql/16/extension/vector*.sql pgvector-${{ runner.os }}-pg16/share/extension/
+          sudo cp /usr/share/postgresql/16/extension/vector.control pgvector-${{ runner.os }}-pg16/share/extension/
+          zip -r pgvector-${{ runner.os }}-pg16.zip pgvector-${{ runner.os }}-pg16
+
+      - name: Create artifact (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir pgvector-${{ runner.os }}-pg16
+          cp vector.so pgvector-${{ runner.os }}-pg16/
+          cp sql/*.sql pgvector-${{ runner.os }}-pg16/
+          cp vector.control pgvector-${{ runner.os }}-pg16/
+          zip -r pgvector-${{ runner.os }}-pg16.zip pgvector-${{ runner.os }}-pg16
+
+      - name: Create artifact (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir pgvector-${{ runner.os }}-pg16
+          copy "C:\Program Files\PostgreSQL\16\lib\vector.dll" pgvector-${{ runner.os }}-pg16\
+          copy "C:\Program Files\PostgreSQL\16\share\extension\vector*.sql" pgvector-${{ runner.os }}-pg16\
+          copy "C:\Program Files\PostgreSQL\16\share\extension\vector.control" pgvector-${{ runner.os }}-pg16\
+          7z a -tzip pgvector-${{ runner.os }}-pg16.zip pgvector-${{ runner.os }}-pg16
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: pgvector-${{ runner.os }}-pg16.zip
+          path: pgvector-${{ runner.os }}-pg16.zip
