@@ -46,7 +46,10 @@ jobs:
 
       - name: Compile pgvector (macOS)
         if: runner.os == 'macOS'
-        run: make
+        run: |
+          export PG_CONFIG="$(brew --prefix postgresql@16)/bin/pg_config"
+          make
+          sudo --preserve-env=PG_CONFIG make install
 
       - name: Set up Visual Studio and compile pgvector (Windows)
         if: runner.os == 'Windows'
@@ -72,10 +75,11 @@ jobs:
       - name: Create artifact (macOS)
         if: runner.os == 'macOS'
         run: |
-          mkdir pgvector-${{ runner.os }}-pg16
-          cp vector.so pgvector-${{ runner.os }}-pg16/
-          cp sql/*.sql pgvector-${{ runner.os }}-pg16/
-          cp vector.control pgvector-${{ runner.os }}-pg16/
+          mkdir -p pgvector-${{ runner.os }}-pg16/lib
+          mkdir -p pgvector-${{ runner.os }}-pg16/share/extension
+          cp $(brew --prefix postgresql@16)/lib/postgresql/vector.so pgvector-${{ runner.os }}-pg16/lib/
+          cp $(brew --prefix postgresql@16)/share/postgresql/extension/vector*.sql pgvector-${{ runner.os }}-pg16/share/extension/
+          cp $(brew --prefix postgresql@16)/share/postgresql/extension/vector.control pgvector-${{ runner.os }}-pg16/share/extension/
           zip -r pgvector-${{ runner.os }}-pg16.zip pgvector-${{ runner.os }}-pg16
 
       - name: Create artifact (Windows)
