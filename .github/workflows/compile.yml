@@ -142,7 +142,6 @@ jobs:
 
       - name: Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: pgvector-${{ runner.os }}-pg16.zip
           name: v0.16.${{ github.run_number }}
