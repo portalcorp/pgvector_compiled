@@ -76,12 +76,13 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install tree
-          tree $(brew --prefix postgresql@16)
+          tree $(brew --prefix postgresql@16)/lib
+          tree $(brew --prefix postgresql@16)/share
           mkdir -p pgvector-${{ runner.os }}-pg16/lib
           mkdir -p pgvector-${{ runner.os }}-pg16/share/extension
-          cp $(brew --prefix postgresql@16)/lib/postgresql/vector.so pgvector-${{ runner.os }}-pg16/lib/
-          cp $(brew --prefix postgresql@16)/share/postgresql/extension/vector*.sql pgvector-${{ runner.os }}-pg16/share/extension/
-          cp $(brew --prefix postgresql@16)/share/postgresql/extension/vector.control pgvector-${{ runner.os }}-pg16/share/extension/
+          cp $(brew --prefix postgresql@16)/lib/vector.so pgvector-${{ runner.os }}-pg16/lib/
+          cp $(brew --prefix postgresql@16)/share/extension/vector*.sql pgvector-${{ runner.os }}-pg16/share/extension/
+          cp $(brew --prefix postgresql@16)/share/extension/vector.control pgvector-${{ runner.os }}-pg16/share/extension/
           zip -r pgvector-${{ runner.os }}-pg16.zip pgvector-${{ runner.os }}-pg16
 
       - name: Create artifact (Windows)
