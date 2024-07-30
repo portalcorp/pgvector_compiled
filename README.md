@@ -13,23 +13,23 @@ Precompiled OS packages (zips) for pgvector on Linux, MacOS, and Windows.
 ### Linux
 
 ```bash
-cp sql/vector--0.5.1.sql $PG_DIR/share/extension/vector--0.5.1.sql
-cp vector.control $PG_DIR/share/extension/vector.control
-cp vector.so $PG_DIR/lib/vector.so
+cp -r pgvector-linux-pg16/sql $PG_DIR/share/extension/
+cp pgvector-linux-pg16/vector.control $PG_DIR/share/extension/
+cp pgvector-linux-pg16/vector.so $PG_DIR/lib/
 ```
 
 ### MacOS
 
 ```bash
-cp sql/vector--0.5.1.sql $PG_DIR/share/extension/vector--0.5.1.sql
-cp vector.control $PG_DIR/share/extension/vector.control
-cp vector.so $PG_DIR/lib/vector.so
+cp -r pgvector-macos-pg16/sql $PG_DIR/share/extension/
+cp pgvector-macos-pg16/vector.control $PG_DIR/share/extension/
+cp pgvector-macos-pg16/vector.dylib $PG_DIR/lib/
 ```
 
 ### Windows
 
 ```bash
-cp sql/vector--0.5.1.sql $PG_DIR/share/extension/vector--0.5.1.sql
-cp vector.control $PG_DIR/share/extension/vector.control
-cp vector.dll $PG_DIR/bin/vector.dll
+cp -r pgvector-windows-pg16/sql $PG_DIR/share/extension/
+cp pgvector-windows-pg16/vector.control $PG_DIR/share/extension/
+cp pgvector-windows-pg16/vector.dll $PG_DIR/bin/
 ```
