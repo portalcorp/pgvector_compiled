@@ -75,6 +75,8 @@ jobs:
       - name: Create artifact (macOS)
         if: runner.os == 'macOS'
         run: |
+          brew install tree
+          tree $(brew --prefix postgresql@16)
           mkdir -p pgvector-${{ runner.os }}-pg16/lib
           mkdir -p pgvector-${{ runner.os }}-pg16/share/extension
           cp $(brew --prefix postgresql@16)/lib/postgresql/vector.so pgvector-${{ runner.os }}-pg16/lib/
