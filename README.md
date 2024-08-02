@@ -13,26 +13,30 @@ The version number format is `v0.<POSTGRESQL_VERSION>.<INCREMENT>` where increme
 
 3. Add the files to your PostgreSQL installation folders:
 
+Here are the markdown bullet point lists of the files for each OS, showing the relative paths within the created zip file:
+
 ### Linux
 
-```bash
-cp -r pgvector-linux-pg16/sql $PG_DIR/share/extension/
-cp pgvector-linux-pg16/vector.control $PG_DIR/share/extension/
-cp pgvector-linux-pg16/vector.so $PG_DIR/lib/
-```
+- `/include/server/extension/vector/*.h`
+- `/lib/bitcode/vector.index.bc`
+- `/lib/bitcode/vector/src/*.bc`
+- `/lib/vector.so`
+- `/share/extension/vector*.sql`
+- `/share/extension/vector.control`
 
-### MacOS
+### macOS
 
-```bash
-cp -r pgvector-macos-pg16/sql $PG_DIR/share/extension/
-cp pgvector-macos-pg16/vector.control $PG_DIR/share/extension/
-cp pgvector-macos-pg16/vector.dylib $PG_DIR/lib/
-```
+- `/lib/vector.dylib`
+- `/lib/vector.so` (not needed)
+- `/share/extension/vector*.sql`
+- `/share/extension/vector.control`
+- `/include/server/extension/vector/*.h`
 
 ### Windows
 
-```bash
-cp -r pgvector-windows-pg16/sql $PG_DIR/share/extension/
-cp pgvector-windows-pg16/vector.control $PG_DIR/share/extension/
-cp pgvector-windows-pg16/vector.dll $PG_DIR/bin/
-```
+- `/lib/vector.dll`
+- `/share/extension/vector*.sql`
+- `/share/extension/vector.control`
+- `/include/server/extension/vector/halfvec.h`
+- `/include/server/extension/vector/sparsevec.h`
+- `/include/server/extension/vector/vector.h`
