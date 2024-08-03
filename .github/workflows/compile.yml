@@ -1,6 +1,8 @@
 name: Compile pgvector
 
 on:
+  schedule:
+    - cron: "0 0 * * *" # Run daily at midnight UTC
   push:
     paths:
       - ".github/workflows/compile.yml"
@@ -10,10 +12,36 @@ on:
   workflow_dispatch:
 
 env:
-  PGVECTOR_VERSION: 0.7.3
+  PGVECTOR_REPO: "pgvector/pgvector"
 
 jobs:
+  check_version:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.check_release.outputs.new_version }}
+      version: ${{ steps.check_release.outputs.version }}
+    steps:
+      - name: Check for new release
+        id: check_release
+        run: |
+          latest_tag=$(curl -s "https://api.github.com/repos/${{ env.PGVECTOR_REPO }}/tags" | jq -r '.[0].name')
+          echo "Latest tag: ${latest_tag#v}"
+          latest_version=${latest_tag#v}
+          echo "version=$latest_version" >> $GITHUB_OUTPUT
+
+          # Get the current version from the latest release of this repo
+          current_version=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r '.body' | grep -oP 'pgvector v\K[0-9.]+')
+          echo "Current version: $current_version"
+
+          if [[ "$latest_version" != "$current_version" ]]; then
+            echo "new_version=true" >> $GITHUB_OUTPUT
+          else
+            echo "new_version=false" >> $GITHUB_OUTPUT
+          fi
+
   build:
+    needs: check_version
+    if: needs.check_version.outputs.new_version == 'true' || github.event_name != 'schedule'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -27,6 +55,9 @@ jobs:
             triple: x86_64-pc-windows-msvc
 
     steps:
+      - name: Set PGVECTOR_VERSION
+        run: echo "PGVECTOR_VERSION=${{ needs.check_version.outputs.version }}" >> $GITHUB_ENV
+
       - name: Set up PostgreSQL and pgvector (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -55,7 +86,7 @@ jobs:
         if: runner.os != 'Linux'
         uses: actions/checkout@v3
         with:
-          repository: "pgvector/pgvector"
+          repository: ${{ env.PGVECTOR_REPO }}
           ref: "v${{ env.PGVECTOR_VERSION }}"
 
       - name: Compile pgvector (macOS)
