@@ -84,8 +84,9 @@ jobs:
 
       - name: Debug PGVECTOR_VERSION
         if: runner.os != 'Linux'
-        run: echo "PGVECTOR_VERSION=${{ env.PGVECTOR_VERSION }}"
-        run: echo "needs.check_version=${{ needs.check_version.outputs.version }}"
+        run: |
+          echo "PGVECTOR_VERSION=${{ env.PGVECTOR_VERSION }}"
+          echo "needs.check_version=${{ needs.check_version.outputs.version }}"
 
       - name: Clone pgvector (macOS and Windows)
         if: runner.os != 'Linux'
