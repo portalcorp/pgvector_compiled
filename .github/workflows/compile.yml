@@ -82,12 +82,17 @@ jobs:
           echo "C:\Program Files\PostgreSQL\16\bin" >> $GITHUB_PATH
           echo "C:\Program Files\PostgreSQL\16" >> $GITHUB_PATH
 
+      - name: Debug PGVECTOR_VERSION
+        if: runner.os != 'Linux'
+        run: echo "PGVECTOR_VERSION=${{ env.PGVECTOR_VERSION }}"
+        run: echo "needs.check_version=${{ needs.check_version.outputs.version }}"
+
       - name: Clone pgvector (macOS and Windows)
         if: runner.os != 'Linux'
         uses: actions/checkout@v3
         with:
           repository: ${{ env.PGVECTOR_REPO }}
-          ref: "v${{ env.PGVECTOR_VERSION }}"
+          ref: v${{ env.PGVECTOR_VERSION || needs.check_version.outputs.version }}
 
       - name: Compile pgvector (macOS)
         if: runner.os == 'macOS'
