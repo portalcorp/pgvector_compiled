@@ -55,9 +55,6 @@ jobs:
             triple: x86_64-pc-windows-msvc
 
     steps:
-      - name: Set PGVECTOR_VERSION
-        run: echo "PGVECTOR_VERSION=${{ needs.check_version.outputs.version }}" >> $GITHUB_ENV
-
       - name: Set up PostgreSQL and pgvector (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -82,18 +79,12 @@ jobs:
           echo "C:\Program Files\PostgreSQL\16\bin" >> $GITHUB_PATH
           echo "C:\Program Files\PostgreSQL\16" >> $GITHUB_PATH
 
-      - name: Debug PGVECTOR_VERSION
-        if: runner.os != 'Linux'
-        run: |
-          echo "PGVECTOR_VERSION=${{ env.PGVECTOR_VERSION }}"
-          echo "needs.check_version=${{ needs.check_version.outputs.version }}"
-
       - name: Clone pgvector (macOS and Windows)
         if: runner.os != 'Linux'
         uses: actions/checkout@v3
         with:
           repository: ${{ env.PGVECTOR_REPO }}
-          ref: v${{ env.PGVECTOR_VERSION || needs.check_version.outputs.version }}
+          ref: v${{ needs.check_version.outputs.version }}
 
       - name: Compile pgvector (macOS)
         if: runner.os == 'macOS'
@@ -203,4 +194,4 @@ jobs:
           name: v0.16.${{ github.run_number }}
           tag_name: v0.16.${{ github.run_number }}
           body: |
-            pgvector v${{ env.PGVECTOR_VERSION }} for PostgreSQL 16
+            pgvector v${{ needs.check_version.outputs.version }} for PostgreSQL 16
